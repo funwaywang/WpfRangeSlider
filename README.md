@@ -4,8 +4,8 @@ WPF Range Slider
 A WPF Control, with two Thumb to adjust show range,
 there are 4 main dependency properties:
 
-* **MaximizeValue** - the max value can be
-* **MinimizeValue** - the min value can be
+* **Maximize** - the max value can be
+* **Minimize** - the min value can be
 * **Start** - the start value of current range
 * **End** - the end value of current range
 
