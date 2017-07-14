@@ -42,10 +42,10 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="0" Grid.Column="0">Minimize</TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="0">Minimum</TextBlock>
             <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Min, RelativeSource={RelativeSource AncestorType=Window}}"/>
 
-            <TextBlock Grid.Row="1" Grid.Column="0">Maximize</TextBlock>
+            <TextBlock Grid.Row="1" Grid.Column="0">Maximum</TextBlock>
             <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Max, RelativeSource={RelativeSource AncestorType=Window}}"/>
 
             <TextBlock Grid.Row="2" Grid.Column="0">Start Value</TextBlock>
@@ -55,7 +55,7 @@
             <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding End, RelativeSource={RelativeSource AncestorType=Window}}"/>
 
             <TextBlock Grid.Row="4" Grid.Column="1" TextWrapping="WrapWithOverflow" Padding="8" Foreground="#9E9E9E">
-                Left click to move start thumb, Right click to move end thumb
+                Left click to make start thumb go to, Right click for end thumb
             </TextBlock>
         </Grid>
 
