@@ -28,9 +28,9 @@ namespace FunwayControls
             End
         }
 
-        public static readonly DependencyProperty MaximizeProperty = DependencyProperty.Register("Maximize", typeof(double), typeof(RangeSlider),
+        public static readonly DependencyProperty MaximumProperty = DependencyProperty.Register("Maximum", typeof(double), typeof(RangeSlider),
             new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsArrange));
-        public static readonly DependencyProperty MinimizeProperty = DependencyProperty.Register("Minimize", typeof(double), typeof(RangeSlider),
+        public static readonly DependencyProperty MinimumProperty = DependencyProperty.Register("Minimum", typeof(double), typeof(RangeSlider),
             new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsArrange));
         public static readonly DependencyProperty StartProperty = DependencyProperty.Register("Start", typeof(double), typeof(RangeSlider),
             new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsArrange | FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
@@ -59,16 +59,16 @@ namespace FunwayControls
             set => SetValue(OrientationProperty, value);
         }
 
-        public double Maximize
+        public double Maximum
         {
-            get => (double)GetValue(MaximizeProperty);
-            set => SetValue(MaximizeProperty, value);
+            get => (double)GetValue(MaximumProperty);
+            set => SetValue(MaximumProperty, value);
         }
 
-        public double Minimize
+        public double Minimum
         {
-            get => (double)GetValue(MinimizeProperty);
-            set => SetValue(MinimizeProperty, value);
+            get => (double)GetValue(MinimumProperty);
+            set => SetValue(MinimumProperty, value);
         }
 
         public double Start
@@ -131,16 +131,16 @@ namespace FunwayControls
         {
             var arrageSize = base.ArrangeOverride(arrangeBounds);
 
-            if (Maximize > Minimize && StartThumb != null && EndThumb != null && SliderContainer != null)
+            if (Maximum > Minimum && StartThumb != null && EndThumb != null && SliderContainer != null)
             {
-                var start = Math.Max(Minimize, Math.Min(Maximize, Start));
-                var end = Math.Max(Minimize, Math.Min(Maximize, End));
+                var start = Math.Max(Minimum, Math.Min(Maximum, Start));
+                var end = Math.Max(Minimum, Math.Min(Maximum, End));
 
                 if (Orientation == Orientation.Horizontal)
                 {
                     var viewportSize = SliderContainer.ActualWidth;
-                    var startPosition = (start - Minimize) / (Maximize - Minimize) * viewportSize;
-                    var endPosition = (end - Minimize) / (Maximize - Minimize) * viewportSize;
+                    var startPosition = (start - Minimum) / (Maximum - Minimum) * viewportSize;
+                    var endPosition = (end - Minimum) / (Maximum - Minimum) * viewportSize;
 
                     startPosition -= StartThumb.DesiredSize.Width / 2;
                     StartThumb.Arrange(new Rect(startPosition, 0, StartThumb.DesiredSize.Width, arrangeBounds.Height));
@@ -151,8 +151,8 @@ namespace FunwayControls
                 else
                 {
                     var viewportSize = SliderContainer.ActualHeight;
-                    var startPosition = (start - Minimize) / (Maximize - Minimize) * viewportSize;
-                    var endPosition = (end - Minimize) / (Maximize - Minimize) * viewportSize;
+                    var startPosition = (start - Minimum) / (Maximum - Minimum) * viewportSize;
+                    var endPosition = (end - Minimum) / (Maximum - Minimum) * viewportSize;
 
                     startPosition -= StartThumb.DesiredSize.Height / 2;
                     StartThumb.Arrange(new Rect(0, startPosition, arrangeBounds.Width, StartThumb.DesiredSize.Height));
@@ -201,7 +201,7 @@ namespace FunwayControls
             double viewportSize = (Orientation == Orientation.Horizontal) ? SliderContainer.ActualWidth : SliderContainer.ActualHeight;
             if (!double.IsNaN(viewportSize) && viewportSize > 0)
             {
-                var value = Math.Min(Maximize, Minimize + (position / viewportSize) * (Maximize - Minimize));
+                var value = Math.Min(Maximum, Minimum + (position / viewportSize) * (Maximum - Minimum));
                 if (block == SliderThumb.Start)
                 {
                     Start = Math.Min(End, value);
@@ -263,20 +263,20 @@ namespace FunwayControls
                 double change;
                 if (Orientation == Orientation.Horizontal)
                 {
-                    change = e.HorizontalChange / SliderContainer.ActualWidth * (Maximize - Minimize);
+                    change = e.HorizontalChange / SliderContainer.ActualWidth * (Maximum - Minimum);
                 }
                 else
                 {
-                    change = e.VerticalChange / SliderContainer.ActualHeight * (Maximize - Minimize);
+                    change = e.VerticalChange / SliderContainer.ActualHeight * (Maximum - Minimum);
                 }
 
                 if (thumb == StartThumb)
                 {
-                    Start = Math.Max(Minimize, Math.Min(End, Start + change));
+                    Start = Math.Max(Minimum, Math.Min(End, Start + change));
                 }
                 else if (thumb == EndThumb)
                 {
-                    End = Math.Min(Maximize, Math.Max(Start, End + change));
+                    End = Math.Min(Maximum, Math.Max(Start, End + change));
                 }
             }
         }
