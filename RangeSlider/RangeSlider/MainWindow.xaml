@@ -59,23 +59,36 @@
             </TextBlock>
         </Grid>
 
+        <Border Grid.Row="0"
+                Grid.Column="1"
+                Background="#388E3C"
+                Width="2"
+                Margin="8"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Stretch"/>
         <local:RangeSlider Grid.Row="0"
                            Grid.Column="1"
                            Orientation="Vertical" 
                            Width="25"
                            Margin="8"
-                           Foreground="#388E3C"
+                           IsReadOnly="True"
                            Maximum="{Binding Max, RelativeSource={RelativeSource AncestorType=Window}}"
                            Minimum="{Binding Min, RelativeSource={RelativeSource AncestorType=Window}}"
                            Start="{Binding Start, RelativeSource={RelativeSource AncestorType=Window}}"
                            End="{Binding End, RelativeSource={RelativeSource AncestorType=Window}}"/>
-        
+
+        <Border Grid.Row="1"
+                Grid.Column="0"
+                Background="#7B1FA2"
+                Height="2"
+                Margin="8"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center"/>
         <local:RangeSlider Grid.Row="1" 
                            Grid.Column="0" 
                            Orientation="Horizontal" 
                            Height="25"
                            Margin="8"
-                           Foreground="#7B1FA2"
                            Maximum="{Binding Max, RelativeSource={RelativeSource AncestorType=Window}}"
                            Minimum="{Binding Min, RelativeSource={RelativeSource AncestorType=Window}}"
                            Start="{Binding Start, RelativeSource={RelativeSource AncestorType=Window}}"

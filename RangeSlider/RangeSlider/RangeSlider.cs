@@ -20,6 +20,8 @@ namespace FunwayControls
     {
         FrameworkElement SliderContainer;
         Thumb StartThumb, EndThumb;
+        FrameworkElement StartArea;
+        FrameworkElement EndArea;
 
         enum SliderThumb
         {
@@ -29,13 +31,13 @@ namespace FunwayControls
         }
 
         public static readonly DependencyProperty MaximumProperty = DependencyProperty.Register("Maximum", typeof(double), typeof(RangeSlider),
-            new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsArrange));
+            new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsMeasure));
         public static readonly DependencyProperty MinimumProperty = DependencyProperty.Register("Minimum", typeof(double), typeof(RangeSlider),
-            new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsArrange));
+            new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsMeasure));
         public static readonly DependencyProperty StartProperty = DependencyProperty.Register("Start", typeof(double), typeof(RangeSlider),
-            new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsArrange | FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+            new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
         public static readonly DependencyProperty EndProperty = DependencyProperty.Register("End", typeof(double), typeof(RangeSlider),
-            new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsArrange | FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+            new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
         public static readonly DependencyProperty OrientationProperty = DependencyProperty.Register("Orientation", typeof(Orientation), typeof(RangeSlider),
             new FrameworkPropertyMetadata(Orientation.Horizontal, FrameworkPropertyMetadataOptions.AffectsArrange | FrameworkPropertyMetadataOptions.AffectsMeasure));
         public static readonly DependencyProperty IsMoveToPointEnabledProperty = DependencyProperty.Register("IsMoveToPointEnabled", typeof(bool), typeof(RangeSlider), new FrameworkPropertyMetadata(true));
@@ -43,6 +45,7 @@ namespace FunwayControls
         public static readonly DependencyProperty EndThumbToolTipProperty = DependencyProperty.Register("EndThumbToolTip", typeof(object), typeof(RangeSlider));
         public static readonly DependencyProperty StartThumbStyleProperty = DependencyProperty.Register("StartThumbStyle", typeof(Style), typeof(RangeSlider));
         public static readonly DependencyProperty EndThumbStyleProperty = DependencyProperty.Register("EndThumbStyle", typeof(Style), typeof(RangeSlider));
+        public static readonly DependencyProperty IsReadOnlyProperty = DependencyProperty.Register("IsReadOnly", typeof(bool), typeof(RangeSlider));
 
         static RangeSlider()
         {
@@ -113,6 +116,12 @@ namespace FunwayControls
             set => SetValue(EndThumbStyleProperty, value);
         }
 
+        public bool IsReadOnly
+        {
+            get => (bool)GetValue(IsReadOnlyProperty);
+            set => SetValue(IsReadOnlyProperty, value);
+        }
+
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
@@ -123,51 +132,50 @@ namespace FunwayControls
                 SliderContainer.PreviewMouseDown += ViewBox_PreviewMouseDown;
             }
 
+            StartArea = GetTemplateChild("PART_StartArea") as FrameworkElement;
+            EndArea = GetTemplateChild("PART_EndArea") as FrameworkElement;
             StartThumb = GetTemplateChild("PART_StartThumb") as Thumb;
             EndThumb = GetTemplateChild("PART_EndThumb") as Thumb;
         }
 
         protected override Size ArrangeOverride(Size arrangeBounds)
         {
-            var arrageSize = base.ArrangeOverride(arrangeBounds);
+            var arrangeSize = base.ArrangeOverride(arrangeBounds);
 
-            if (Maximum > Minimum && StartThumb != null && EndThumb != null && SliderContainer != null)
+            if (Maximum > Minimum && StartArea != null && EndArea != null)
             {
                 var start = Math.Max(Minimum, Math.Min(Maximum, Start));
                 var end = Math.Max(Minimum, Math.Min(Maximum, End));
-
+                Rect rectStart, rectEnd;
                 if (Orientation == Orientation.Horizontal)
                 {
-                    var viewportSize = SliderContainer.ActualWidth;
+                    var viewportSize = SliderContainer != null ? SliderContainer.ActualWidth : arrangeBounds.Width;
                     var startPosition = (start - Minimum) / (Maximum - Minimum) * viewportSize;
                     var endPosition = (end - Minimum) / (Maximum - Minimum) * viewportSize;
-
-                    startPosition -= StartThumb.DesiredSize.Width / 2;
-                    StartThumb.Arrange(new Rect(startPosition, 0, StartThumb.DesiredSize.Width, arrangeBounds.Height));
-
-                    endPosition -= EndThumb.DesiredSize.Width / 2;
-                    EndThumb.Arrange(new Rect(endPosition, 0, EndThumb.DesiredSize.Width, arrangeBounds.Height));
+                    rectStart = new Rect(0, 0, startPosition, arrangeBounds.Height);
+                    rectEnd = new Rect(endPosition, 0, viewportSize - endPosition, arrangeBounds.Height);
                 }
                 else
                 {
-                    var viewportSize = SliderContainer.ActualHeight;
+                    var viewportSize = SliderContainer != null ? SliderContainer.ActualHeight : arrangeBounds.Height;
                     var startPosition = (start - Minimum) / (Maximum - Minimum) * viewportSize;
                     var endPosition = (end - Minimum) / (Maximum - Minimum) * viewportSize;
-
-                    startPosition -= StartThumb.DesiredSize.Height / 2;
-                    StartThumb.Arrange(new Rect(0, startPosition, arrangeBounds.Width, StartThumb.DesiredSize.Height));
-
-                    endPosition -= EndThumb.DesiredSize.Height / 2;
-                    EndThumb.Arrange(new Rect(0, endPosition, arrangeBounds.Width, EndThumb.DesiredSize.Height));
+                    rectStart = new Rect(0, 0, arrangeBounds.Width, startPosition);
+                    rectEnd = new Rect(0, endPosition, arrangeBounds.Width, viewportSize - endPosition);
                 }
+
+                if (StartArea != null) StartArea.Arrange(rectStart);
+                if (EndArea != null) EndArea.Arrange(rectEnd);
+                if (StartThumb != null) StartThumb.Arrange(rectStart);
+                if (EndThumb != null) EndThumb.Arrange(rectEnd);
             }
 
-            return arrageSize;
+            return arrangeSize;
         }
 
         private void ViewBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (IsMoveToPointEnabled)
+            if (!IsReadOnly && IsMoveToPointEnabled)
             {
                 if ((StartThumb != null && StartThumb.IsMouseOver) || (EndThumb != null && EndThumb.IsMouseOver))
                     return;
@@ -212,30 +220,7 @@ namespace FunwayControls
                 }
             }
         }
-
-        private SliderThumb HitTestBlock(FrameworkElement container, Point point)
-        {
-            var hr = VisualTreeHelper.HitTest(container, point);
-            if (hr != null)
-            {
-                var element = hr.VisualHit;
-                while (element != null)
-                {
-                    if (element == StartThumb)
-                        return SliderThumb.Start;
-                    else if (element == EndThumb)
-                        return SliderThumb.End;
-
-                    var parent = VisualTreeHelper.GetParent(element);
-                    if (parent == null || parent == container)
-                        break;
-                    element = parent;
-                }
-            }
-
-            return SliderThumb.None;
-        }
-
+        
         private static void OnDragStartedEvent(object sender, DragStartedEventArgs e)
         {
             if (sender is RangeSlider rs)
@@ -258,7 +243,7 @@ namespace FunwayControls
 
         private void OnThumbDragDelta(DragDeltaEventArgs e)
         {
-            if (e.OriginalSource is Thumb thumb && SliderContainer != null)
+            if (!IsReadOnly && e.OriginalSource is Thumb thumb && SliderContainer != null)
             {
                 double change;
                 if (Orientation == Orientation.Horizontal)
